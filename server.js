@@ -10,13 +10,22 @@ const vueServerRender = require('vue-server-renderer').createRenderer({
     template: vueTemplate
 })
 
-const creatApp = require('./src/app.js')
+const App = require('./src/entry.server.js')
 
-app.get('*', (request, respone) => {
-    // 获取vue实例
-    const vm = creatApp()
-    respone.setHeader('Content-type', 'text/html;charset-utf-8')
-    vueServerRender.renderToString(vm).then(html => respone.end(html)).catch(err => respone.end(err))
+app.get('*', async (request, respone) => {
+    const {
+        url
+    } = request
+
+    if (url !== "/favicon.ico") {
+        // 获取vue实例
+        const vm = await App({
+            url
+        })
+
+        respone.setHeader('Content-type', 'text/html;charset-utf-8')
+        vueServerRender.renderToString(vm).then(html => respone.end(html)).catch(err => respone.end(err))
+    }
 })
 
 app.listen(3001, () => {
